@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tutorials - LearnNow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html">LearnNow</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <i class="bi bi-list fs-1"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home"></i> Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="courses.html"><i class="fas fa-book"></i> Courses</a></li>
+          <li class="nav-item"><a class="nav-link active" href="tutorials.html"><i class="fas fa-video"></i> Tutorials</a></li>
+          <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html"><i class="fas fa-envelope"></i> Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="auth.html"><i class="fas fa-user"></i> Login</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-4">
+    <h1 class="text-center mb-4">🎥 Tutorials</h1>
+
+    <div class="d-flex justify-content-center flex-wrap gap-2 mb-4">
+      <button class="btn btn-outline-primary" onclick="loadTutorial('https://www.youtube.com/embed/3PHXvlpOkf4', 'HTML & CSS')">HTML & CSS</button>
+      <button class="btn btn-outline-warning" onclick="loadTutorial('https://www.youtube.com/embed/PoRJizFvM7s', 'Python Basics')">Python Basics</button>
+      <button class="btn btn-outline-success" onclick="loadTutorial('https://www.youtube.com/embed/UB1O30fR-EE', 'JavaScript Crash Course')">JavaScript</button>
+      <button class="btn btn-outline-info" onclick="loadTutorial('https://www.youtube.com/embed/TcFz3FZHoL8', 'React Basics')">React</button>
+    </div>
+
+    <div class="text-center">
+      <h4 id="videoTitle" class="mb-2 text-secondary">Now Playing: HTML & CSS</h4>
+      <iframe id="tutorialPlayer" width="100%" height="400" src="https://www.youtube.com/embed/3PHXvlpOkf4" frameborder="0" allowfullscreen class="shadow rounded"></iframe>
+    </div>
+  </main>
+
+  <footer class="text-center bg-light py-3 mt-4">
+    <p>&copy; 2025 LearnNow. All rights reserved.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function loadTutorial(url, title) {
+      $("#tutorialPlayer").fadeOut(200, function () {
+        $("#tutorialPlayer").attr("src", url).fadeIn(300);
+      });
+      $("#videoTitle").text("Now Playing: " + title);
+    }
+  </script>
+</body>
+</html>

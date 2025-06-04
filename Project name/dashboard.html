@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - LearnNow</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">LearnNow</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="courses.html"><i class="fas fa-book"></i> Courses</a></li>
+            <li class="nav-item"><a class="nav-link" href="tutorials.html"><i class="fas fa-video"></i> Tutorials</a></li>
+            <li class="nav-item"><a class="nav-link active" href="dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="contact.html"><i class="fas fa-envelope"></i> Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container py-4">
+    <h1 class="text-center mb-4">📊 Dashboard</h1>
+
+    <div class="row g-4 mb-4">
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <h5 class="card-title">📚 Courses</h5>
+            <p class="card-text" id="courseStats">Enrolled: 0 | Completed: 0</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title text-center">📈 Course Progress</h5>
+            <div class="mb-2">
+              <small>HTML & CSS</small>
+              <div class="progress" style="height: 10px;">
+                <div class="progress-bar" id="htmlProgress" style="width: 0%"></div>
+              </div>
+            </div>
+            <div class="mb-2">
+              <small>JavaScript</small>
+              <div class="progress" style="height: 10px;">
+                <div class="progress-bar" id="jsProgress" style="width: 0%"></div>
+              </div>
+            </div>
+            <div class="mb-2">
+              <small>Python</small>
+              <div class="progress" style="height: 10px;">
+                <div class="progress-bar" id="pythonProgress" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <h5 class="card-title">🏆 Overall Progress</h5>
+            <div class="progress mb-3" style="height: 25px;">
+              <div class="progress-bar bg-success" id="overallProgress" style="width: 0%">0%</div>
+            </div>
+            <button class="btn btn-sm btn-primary" id="updateProgressBtn">
+              <i class="fas fa-sync-alt"></i> Update Progress
+            </button>
+            <small class="text-muted d-block mt-2">Last updated: <span id="currentDateTime"></span></small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="mt-5">
+      <h2>📚 Learning Resources</h2>
+      <button class="btn btn-primary mb-3" id="fetchResourcesBtn">Load Resources</button>
+      <div id="apiResources" class="row g-3"></div>
+    </section>
+
+    <section class="mt-5">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">📝 Learning Tasks</h2>
+        <button class="btn btn-sm btn-outline-secondary" id="refreshTasksBtn">
+          <i class="fas fa-sync-alt"></i> Refresh Tasks
+        </button>
+      </div>
+      <div id="taskGrid" class="row g-3"></div>
+    </section>
+  </main>
+
+  <footer class="text-center bg-light py-3 mt-4">
+    <p>&copy; 2025 LearnNow. All rights reserved.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Task database
+    const taskDatabase = [
+      "Review HTML structure",
+      "Practice CSS layouts",
+      "Write JavaScript function",
+      "Watch 1 tutorial",
+      "Add a new course",
+      "Open the Dashboard",
+      "Complete a quiz",
+      "Read documentation",
+      "Build a small project",
+      "Debug existing code",
+      "Learn a new concept",
+      "Pair program with someone"
+    ];
+
+    // User progress data
+    let userProgress = {
+      enrolled: 3,
+      completed: 0,
+      htmlProgress: 0,
+      jsProgress: 0,
+      pythonProgress: 0,
+      completedTasks: [],
+      lastUpdated: new Date().toISOString()
+    };
+
+    // DOM elements
+    const taskGrid = document.getElementById('taskGrid');
+    const refreshTasksBtn = document.getElementById('refreshTasksBtn');
+    const fetchResourcesBtn = document.getElementById('fetchResourcesBtn');
+    const apiResources = document.getElementById('apiResources');
+    const updateProgressBtn = document.getElementById('updateProgressBtn');
+
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load saved progress from localStorage
+      const savedProgress = localStorage.getItem('learnNowProgress');
+      if (savedProgress) {
+        userProgress = JSON.parse(savedProgress);
+      }
+      
+      updateDateTime();
+      updateProgressDisplay();
+      generateTasks();
+      
+      // Set up event listeners
+      refreshTasksBtn.addEventListener('click', generateTasks);
+      fetchResourcesBtn.addEventListener('click', fetchResources);
+      updateProgressBtn.addEventListener('click', updateProgressDisplay);
+    });
+
+    // Update current date and time
+    function updateDateTime() {
+      const now = new Date(userProgress.lastUpdated || new Date());
+      document.getElementById('currentDateTime').textContent = now.toLocaleString();
+    }
+
+    // Update all progress displays
+    function updateProgressDisplay() {
+      // Update timestamp
+      userProgress.lastUpdated = new Date().toISOString();
+      
+      // Update course stats
+      document.getElementById('courseStats').textContent = 
+        `Enrolled: ${userProgress.enrolled} | Completed: ${userProgress.completed}`;
+      
+      // Update progress bars
+      document.getElementById('htmlProgress').style.width = `${userProgress.htmlProgress}%`;
+      document.getElementById('jsProgress').style.width = `${userProgress.jsProgress}%`;
+      document.getElementById('pythonProgress').style.width = `${userProgress.pythonProgress}%`;
+      
+      // Calculate and update overall progress
+      const overall = Math.round(
+        (userProgress.htmlProgress + userProgress.jsProgress + userProgress.pythonProgress) / 3
+      );
+      const overallProgress = document.getElementById('overallProgress');
+      overallProgress.style.width = `${overall}%`;
+      overallProgress.textContent = `${overall}%`;
+      
+      // Save progress to localStorage
+      localStorage.setItem('learnNowProgress', JSON.stringify(userProgress));
+      
+      // Update displayed time
+      updateDateTime();
+      
+      // Show feedback
+      showToast('Progress updated successfully!', 'success');
+    }
+
+    // Generate random learning tasks
+    function generateTasks() {
+      taskGrid.innerHTML = '';
+      
+      // Filter out completed tasks
+      const availableTasks = taskDatabase.filter(task => 
+        !userProgress.completedTasks.includes(task)
+      );
+      
+      // If all tasks completed, reset completed tasks
+      if (availableTasks.length === 0) {
+        userProgress.completedTasks = [];
+        showToast('All tasks completed! Generating new set.', 'info');
+        generateTasks();
+        return;
+      }
+      
+      // Shuffle and pick 6 random tasks
+      const shuffled = [...availableTasks].sort(() => 0.5 - Math.random());
+      const selectedTasks = shuffled.slice(0, 6);
+      
+      // Create task cards
+      selectedTasks.forEach((task, index) => {
+        const colors = ['primary', 'success', 'info', 'warning', 'danger', 'secondary'];
+        const color = colors[index % colors.length];
+        
+        const col = document.createElement('div');
+        col.className = 'col-md-6 col-lg-4';
+        
+        col.innerHTML = `
+          <div class="card border-${color} shadow-sm task-card" data-task="${task}">
+            <div class="card-body d-flex justify-content-between align-items-center">
+              <span>${task}</span>
+              <button class="btn btn-sm btn-outline-${color} complete-btn">
+                <i class="fas fa-check"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        
+        taskGrid.appendChild(col);
+      });
+      
+      // Add event listeners to new task cards
+      document.querySelectorAll('.complete-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          completeTask(this.closest('.task-card'));
+        });
+      });
+      
+      document.querySelectorAll('.task-card').forEach(card => {
+        card.addEventListener('click', function() {
+          completeTask(this);
+        });
+      });
+    }
+
+    // Complete a task and update progress
+    function completeTask(taskCard) {
+      const task = taskCard.dataset.task;
+      
+      // Add to completed tasks if not already there
+      if (!userProgress.completedTasks.includes(task)) {
+        userProgress.completedTasks.push(task);
+        
+        // Update progress based on task type
+        if (task.includes('HTML')) {
+          userProgress.htmlProgress = Math.min(100, userProgress.htmlProgress + 15);
+        } else if (task.includes('JavaScript')) {
+          userProgress.jsProgress = Math.min(100, userProgress.jsProgress + 15);
+        } else if (task.includes('Python')) {
+          userProgress.pythonProgress = Math.min(100, userProgress.pythonProgress + 15);
+        }
+        
+        // Random chance to complete a course (20% chance)
+        if (Math.random() > 0.8 && userProgress.completed < userProgress.enrolled) {
+          userProgress.completed++;
+        }
+        
+        // Animate completion
+        taskCard.style.transition = 'all 0.3s ease';
+        taskCard.style.opacity = '0.5';
+        taskCard.style.textDecoration = 'line-through';
+        
+        setTimeout(() => {
+          taskCard.remove();
+          // Force progress update immediately
+          updateProgressDisplay();
+        }, 300);
+      }
+    }
+
+    // Fetch learning resources from API
+    async function fetchResources() {
+  try {
+    fetchResourcesBtn.disabled = true;
+    fetchResourcesBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+
+    const response = await fetch('https://openlibrary.org/search.json?q=programming&limit=4');
+    if (!response.ok) throw new Error('Failed to fetch data');
+
+    const data = await response.json();
+    const books = data.docs;
+
+    apiResources.innerHTML = books.map(book => `
+      <div class="col-md-6">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">${book.title}</h5>
+            <p class="card-text">
+              <strong>Author:</strong> ${book.author_name ? book.author_name[0] : 'Unknown'}<br>
+              <strong>Year:</strong> ${book.first_publish_year || 'N/A'}
+            </p>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    showToast('📘 Programming books loaded!', 'success');
+  } catch (error) {
+    console.error(error);
+    apiResources.innerHTML = '<p class="text-danger">❌ Failed to load books. Try again later.</p>';
+    showToast('Failed to load books', 'danger');
+  } finally {
+    fetchResourcesBtn.disabled = false;
+    fetchResourcesBtn.textContent = 'Load Resources';
+  }
+}
+
+
+    // Show toast notification
+    function showToast(message, type = 'success') {
+      const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+      const toastEl = document.createElement('div');
+      
+      toastEl.className = `toast align-items-center text-white bg-${type} border-0`;
+      toastEl.setAttribute('role', 'alert');
+      toastEl.setAttribute('aria-live', 'assertive');
+      toastEl.setAttribute('aria-atomic', 'true');
+      
+      toastEl.innerHTML = `
+        <div class="d-flex">
+          <div class="toast-body">${message}</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      `;
+      
+      toastContainer.appendChild(toastEl);
+      const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+      toast.show();
+      
+      toastEl.addEventListener('hidden.bs.toast', () => {
+        toastEl.remove();
+      });
+    }
+
+    function createToastContainer() {
+      const container = document.createElement('div');
+      container.id = 'toastContainer';
+      container.className = 'position-fixed bottom-0 end-0 p-3';
+      container.style.zIndex = '9999';
+      document.body.appendChild(container);
+      return container;
+    }
+  </script>
+</body>
+</html>

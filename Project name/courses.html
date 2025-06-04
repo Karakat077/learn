@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Courses - LearnNow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="index.html">LearnNow</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <i class="bi bi-list fs-1"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home"></i> Home</a></li>
+        <li class="nav-item"><a class="nav-link active" href="courses.html"><i class="fas fa-book"></i> Courses</a></li>
+        <li class="nav-item"><a class="nav-link" href="tutorials.html"><i class="fas fa-video"></i> Tutorials</a></li>
+        <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="contact.html"><i class="fas fa-envelope"></i> Contact</a></li>
+        <li class="nav-item"><a class="nav-link" href="auth.html"><i class="fas fa-user"></i> Login</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main class="container py-4">
+  <h1 class="text-center mb-4">🎓 Available Courses</h1>
+
+  <section>
+    <h2>📚 Your Courses</h2>
+    <ul id="courseList" class="list-group mb-3"></ul>
+
+    <div class="input-group mb-3">
+      <input type="text" id="newCourse" class="form-control" placeholder="Enter course name" />
+      <button class="btn btn-success" onclick="addCourse()">Add</button>
+    </div>
+    <p id="courseStatus" class="text-info fw-bold d-none"></p>
+  </section>
+
+  <section class="mt-5">
+    <h2>💰 Compare Course Prices</h2>
+    <div class="row g-2">
+      <div class="col-md-6">
+        <input type="number" id="course1" class="form-control" placeholder="Course A price" min="0" />
+      </div>
+      <div class="col-md-6">
+        <input type="number" id="course2" class="form-control" placeholder="Course B price" min="0" />
+      </div>
+    </div>
+    <button onclick="compareCourses()" class="btn btn-primary mt-3">Compare</button>
+    <div id="compareResult" class="alert alert-info mt-3 d-none"></div>
+  </section>
+</main>
+
+<footer class="text-center bg-light py-3 mt-4">
+  <p>&copy; 2025 LearnNow. All rights reserved.</p>
+</footer>
+
+<script>
+  function addCourse() {
+    const courseName = document.getElementById("newCourse").value.trim();
+    const courseList = document.getElementById("courseList");
+    const courseStatus = document.getElementById("courseStatus");
+
+    if (!courseName) {
+      courseStatus.textContent = "❌ Please enter a course name.";
+      courseStatus.classList.remove("d-none");
+      return;
+    }
+
+    const li = document.createElement("li");
+    li.className = "list-group-item d-flex justify-content-between align-items-center";
+    li.innerHTML = `
+      <span>${courseName}</span>
+      <button class="btn btn-sm btn-outline-success" onclick="saveCourse('${courseName}')">Save</button>
+    `;
+    courseList.appendChild(li);
+
+    courseStatus.textContent = `✅ Course "${courseName}" added.`;
+    courseStatus.classList.remove("d-none");
+    document.getElementById("newCourse").value = "";
+  }
+
+  function saveCourse(courseName) {
+    let savedCourses = JSON.parse(localStorage.getItem("savedCourses")) || [];
+    if (!savedCourses.includes(courseName)) {
+      savedCourses.push(courseName);
+      localStorage.setItem("savedCourses", JSON.stringify(savedCourses));
+      alert(`✅ "${courseName}" has been saved.`);
+    } else {
+      alert(`⚠️ "${courseName}" is already saved.`);
+    }
+  }
+
+  function compareCourses() {
+    const a = parseFloat(document.getElementById("course1").value);
+    const b = parseFloat(document.getElementById("course2").value);
+    const resultBox = document.getElementById("compareResult");
+
+    if (isNaN(a) || isNaN(b) || a < 0 || b < 0) {
+      resultBox.textContent = "❌ Please enter valid positive prices.";
+    } else if (a > b) {
+      resultBox.textContent = "💡 Course A is more expensive.";
+    } else if (a < b) {
+      resultBox.textContent = "💡 Course B is more expensive.";
+    } else {
+      resultBox.textContent = "✅ Both courses cost the same.";
+    }
+
+    resultBox.classList.remove("d-none");
+  }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
